@@ -16,6 +16,10 @@ fi
 docker run -d \
     --name $container \
     -v "$(pwd):/home/user/work" \
+    --device=/dev/dri/card0:/dev/dri/card0 \
+    --device=/dev/dri/card1:/dev/dri/card1 \
+    --device=/dev/dri/controlD64:/dev/dri/controlD64 \
+    --device=/dev/dri/controlD65:/dev/dri/controlD65 \
     $image >/dev/null
 
 finally() {
