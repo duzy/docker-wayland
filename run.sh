@@ -1,6 +1,6 @@
 #!/bin/sh
 
-image=duzy/wayland
+image=duzy/wayland-dev
 container=wayland
 
 cleanup() {

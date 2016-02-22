@@ -50,8 +50,6 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
   libpangox-1.0-dev \
   libpam0g-dev
 
-#  libwacom-dev
-
 RUN useradd -m -s /bin/bash user
 
 USER root

@@ -107,9 +107,16 @@ RUN cd /opt/wayland/source/weston \
 ENV DISPLAY :0
 ENV XDG_RUNTIME_DIR /var/lib/wayland
 RUN mkdir -p /var/lib/wayland && chmod 0700 /var/lib/wayland
+#RUN mkdir -p /usr/lib/x86_64-linux-gnu/weston \
+# && mount --bind /opt/wayland/lib/weston /usr/lib/x86_64-linux-gnu/weston
+RUN ln -s /opt/wayland/lib/weston /usr/lib/x86_64-linux-gnu/weston
+RUN ls -l /usr/lib/x86_64-linux-gnu/weston && ls -l /usr/lib/x86_64-linux-gnu/weston/
 
 # The default VNC port is 5900
 EXPOSE 5900
 
+COPY init.sh /init.sh
+RUN chmod +x /init.sh
+
 WORKDIR /root
-CMD which weston && sleep 100000
+CMD /init.sh
