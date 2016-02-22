@@ -7,7 +7,48 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
   net-tools \
   menu \
   sudo \
-  gcc
+  gcc g++ \
+  pkg-config \
+  autoconf \
+  xutils-dev \
+  apt-utils \
+  libpthread-stubs0-dev \
+  libpciaccess-dev \
+  bison flex \
+  libtool \
+  libffi-dev \
+  libexpat1-dev \
+  libxml2-dev \
+  make \
+  python \
+  python-mako \
+  x11proto-gl-dev \
+  x11proto-dri2-dev \
+  x11proto-dri3-dev \
+  x11proto-present-dev \
+  libxcb1-dev \
+  libxcb-dri2-0-dev \
+  libxcb-dri3-dev \
+  libxcb-present-dev \
+  libxcb-glx0-dev \
+  libxshmfence-dev \
+  libx11-xcb-dev \
+  libxcb-glx0-dev \
+  libxfixes-dev \
+  libxdamage-dev \
+  libxext-dev \
+  libudev-dev \
+  libomxil-bellagio-dev \
+  libmtdev-dev \
+  libevdev-dev \
+  libxcb-composite0-dev \
+  libxcursor-dev \
+  libcairo-dev \
+  libxkbcommon-dev \
+  libjpeg-dev \
+  libpng12-dev \
+  libpangox-1.0-dev \
+  libpam0g-dev
 
 RUN useradd -m -s /bin/bash user
 
@@ -23,19 +64,6 @@ RUN git clone --depth=1 git://anongit.freedesktop.org/wayland/libinput && \
     git clone --depth=1 git://anongit.freedesktop.org/mesa/mesa && \
     git clone --depth=1 git://anongit.freedesktop.org/mesa/drm
 
-RUN DEBIAN_FRONTEND=noninteractive apt-get install -y \
-    pkg-config autoconf
-
-RUN DEBIAN_FRONTEND=noninteractive apt-get install -y libtool
-RUN DEBIAN_FRONTEND=noninteractive apt-get install -y libffi-dev
-RUN DEBIAN_FRONTEND=noninteractive apt-get install -y libexpat1-dev libxml2-dev
-RUN DEBIAN_FRONTEND=noninteractive apt-get install -y gettext
-RUN DEBIAN_FRONTEND=noninteractive apt-get install -y make
-
-RUN cd /opt/wayland/source/wayland \
-    && ./autogen.sh --prefix=/opt/wayland --disable-documentation \
-    && make && make install
-
 ENV PATH $PATH:/opt/wayland/bin
 ENV LD_LIBRARY_PATH=/opt/wayland/lib
 ENV PKG_CONFIG_PATH=/opt/wayland/lib/pkgconfig/:/opt/wayland/share/pkgconfig/
@@ -43,41 +71,18 @@ ENV ACLOCAL_PATH=/opt/wayland/share/aclocal
 ENV ACLOCAL="aclocal -I $ACLOCAL_PATH"
 ENV mkdir -p /opt/wayland/share/aclocal # needed by autotools
 
+RUN cd /opt/wayland/source/wayland \
+    && ./autogen.sh --prefix=/opt/wayland --disable-documentation \
+    && make && make install
+
 RUN cd /opt/wayland/source/wayland-protocols \
     && ./autogen.sh --prefix=/opt/wayland \
     && make && make install
 
-# For xorg-macros
-RUN DEBIAN_FRONTEND=noninteractive apt-get install -y xutils-dev
-RUN DEBIAN_FRONTEND=noninteractive apt-get install -y apt-utils
-RUN DEBIAN_FRONTEND=noninteractive apt-get install -y libpthread-stubs0-dev
-#RUN DEBIAN_FRONTEND=noninteractive apt-get install -y libpthread-workqueue-dev
-RUN DEBIAN_FRONTEND=noninteractive apt-get install -y libpciaccess-dev
-RUN DEBIAN_FRONTEND=noninteractive apt-get install -y bison
 RUN cd /opt/wayland/source/drm \
     && ./autogen.sh --prefix=/opt/wayland \
     && make && make install
 
-RUN DEBIAN_FRONTEND=noninteractive apt-get install -y flex
-RUN DEBIAN_FRONTEND=noninteractive apt-get install -y python
-RUN DEBIAN_FRONTEND=noninteractive apt-get install -y python-mako
-RUN DEBIAN_FRONTEND=noninteractive apt-get install -y x11proto-gl-dev # for glproto
-RUN DEBIAN_FRONTEND=noninteractive apt-get install -y x11proto-dri2-dev # for dir2proto
-RUN DEBIAN_FRONTEND=noninteractive apt-get install -y x11proto-dri3-dev # for dir3proto
-RUN DEBIAN_FRONTEND=noninteractive apt-get install -y x11proto-present-dev # for presentproto
-RUN DEBIAN_FRONTEND=noninteractive apt-get install -y libxcb1-dev
-RUN DEBIAN_FRONTEND=noninteractive apt-get install -y libxcb-dri2-0-dev
-RUN DEBIAN_FRONTEND=noninteractive apt-get install -y libxcb-dri3-dev
-RUN DEBIAN_FRONTEND=noninteractive apt-get install -y libxcb-present-dev
-RUN DEBIAN_FRONTEND=noninteractive apt-get install -y libxshmfence-dev
-RUN DEBIAN_FRONTEND=noninteractive apt-get install -y libx11-xcb-dev
-RUN DEBIAN_FRONTEND=noninteractive apt-get install -y libxcb-glx0-dev
-RUN DEBIAN_FRONTEND=noninteractive apt-get install -y libxfixes-dev
-RUN DEBIAN_FRONTEND=noninteractive apt-get install -y libxdamage-dev
-RUN DEBIAN_FRONTEND=noninteractive apt-get install -y libxext-dev
-RUN DEBIAN_FRONTEND=noninteractive apt-get install -y libudev-dev
-RUN DEBIAN_FRONTEND=noninteractive apt-get install -y libomxil-bellagio-dev
-RUN DEBIAN_FRONTEND=noninteractive apt-get install -y g++
 RUN cd /opt/wayland/source/mesa \
     && ./autogen.sh --prefix=/opt/wayland \
        --enable-shared-glapi \
@@ -85,21 +90,10 @@ RUN cd /opt/wayland/source/mesa \
        --with-gallium-drivers=swrast,nouveau \
     && make && make install
 
-RUN DEBIAN_FRONTEND=noninteractive apt-get install -y libmtdev-dev
-RUN DEBIAN_FRONTEND=noninteractive apt-get install -y libevdev-dev
-RUN DEBIAN_FRONTEND=noninteractive apt-get install -y libwacom-dev
 RUN cd /opt/wayland/source/libinput \
     && ./autogen.sh --prefix=/opt/wayland --disable-documentation --disable-libwacom \
     && make && make install
 
-RUN DEBIAN_FRONTEND=noninteractive apt-get install -y libxcb-composite0-dev
-RUN DEBIAN_FRONTEND=noninteractive apt-get install -y libxcursor-dev
-RUN DEBIAN_FRONTEND=noninteractive apt-get install -y libcairo-dev
-RUN DEBIAN_FRONTEND=noninteractive apt-get install -y libxkbcommon-dev
-RUN DEBIAN_FRONTEND=noninteractive apt-get install -y libjpeg-dev
-RUN DEBIAN_FRONTEND=noninteractive apt-get install -y libpng12-dev
-RUN DEBIAN_FRONTEND=noninteractive apt-get install -y libpangox-1.0-dev
-RUN DEBIAN_FRONTEND=noninteractive apt-get install -y libpam0g-dev
 RUN cd /opt/wayland/source/weston \
     && ./autogen.sh --prefix=/opt/wayland --disable-documentation \
     && make && make install
@@ -107,16 +101,13 @@ RUN cd /opt/wayland/source/weston \
 ENV DISPLAY :0
 ENV XDG_RUNTIME_DIR /var/lib/wayland
 RUN mkdir -p /var/lib/wayland && chmod 0700 /var/lib/wayland
-#RUN mkdir -p /usr/lib/x86_64-linux-gnu/weston \
-# && mount --bind /opt/wayland/lib/weston /usr/lib/x86_64-linux-gnu/weston
 RUN ln -s /opt/wayland/lib/weston /usr/lib/x86_64-linux-gnu/weston
-RUN ls -l /usr/lib/x86_64-linux-gnu/weston && ls -l /usr/lib/x86_64-linux-gnu/weston/
-
-# The default VNC port is 5900
-EXPOSE 5900
 
 COPY init.sh /init.sh
 RUN chmod +x /init.sh
+
+# The default VNC port is 5900
+EXPOSE 5900
 
 WORKDIR /root
 CMD /init.sh
