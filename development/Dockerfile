@@ -1,6 +1,7 @@
 FROM debian:8
 MAINTAINER Duzy Chan <code@duzy.info>
 
+## Install packages
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
   git \
   libgl1-mesa-dri \
@@ -50,12 +51,18 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
   libpangox-1.0-dev \
   libpam0g-dev
 
+## Users and sudoers
 RUN useradd -m -s /bin/bash user
 
 USER root
 RUN echo "user ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/user
 
-RUN mkdir -p /opt/wayland/source
+## Make directories
+RUN mkdir -p /var/lib/wayland && chmod 0700 /var/lib/wayland
+    && mkdir -p /opt/wayland/share/aclocal \
+    && mkdir -p /opt/wayland/source
+
+## Clone sources
 WORKDIR /opt/wayland/source
 RUN git clone --depth=1 git://anongit.freedesktop.org/wayland/libinput && \
     git clone --depth=1 git://anongit.freedesktop.org/wayland/wayland && \
@@ -64,13 +71,14 @@ RUN git clone --depth=1 git://anongit.freedesktop.org/wayland/libinput && \
     git clone --depth=1 git://anongit.freedesktop.org/mesa/mesa && \
     git clone --depth=1 git://anongit.freedesktop.org/mesa/drm
 
+## Environments
 ENV PATH $PATH:/opt/wayland/bin
 ENV LD_LIBRARY_PATH=/opt/wayland/lib
 ENV PKG_CONFIG_PATH=/opt/wayland/lib/pkgconfig/:/opt/wayland/share/pkgconfig/
 ENV ACLOCAL_PATH=/opt/wayland/share/aclocal
 ENV ACLOCAL="aclocal -I $ACLOCAL_PATH"
-ENV mkdir -p /opt/wayland/share/aclocal # needed by autotools
 
+## Building sources
 RUN cd /opt/wayland/source/wayland \
     && ./autogen.sh --prefix=/opt/wayland --disable-documentation \
     && make && make install
@@ -98,13 +106,14 @@ RUN cd /opt/wayland/source/weston \
     && ./autogen.sh --prefix=/opt/wayland --disable-documentation \
     && make && make install
 
-ENV DISPLAY :0
-ENV XDG_RUNTIME_DIR /var/lib/wayland
-RUN mkdir -p /var/lib/wayland && chmod 0700 /var/lib/wayland
 RUN ln -s /opt/wayland/lib/weston /usr/lib/x86_64-linux-gnu/weston
 
 COPY init.sh /init.sh
 RUN chmod +x /init.sh
+
+# Environments for wayland
+ENV DISPLAY :0
+ENV XDG_RUNTIME_DIR /var/lib/wayland
 
 # The default VNC port is 5900
 EXPOSE 5900
